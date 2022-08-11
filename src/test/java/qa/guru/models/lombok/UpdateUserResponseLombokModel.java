@@ -6,5 +6,5 @@ import lombok.Data;
 public class UpdateUserResponseLombokModel {
     private String updateName,
             updateJob,
-            updateCreatedAt;
+            updatedAt;
 }

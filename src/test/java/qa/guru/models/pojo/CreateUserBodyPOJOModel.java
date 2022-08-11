@@ -1,7 +1,7 @@
 package qa.guru.models.pojo;
 
 public class CreateUserBodyPOJOModel {
-    String name,
+    private String name,
             job;
 
     public String getName() {

@@ -1,7 +1,7 @@
 package qa.guru.models.pojo;
 
 public class CreateUserResponsePOJOModel {
-    String name,
+    private String name,
             job,
             id,
             createdAt;
