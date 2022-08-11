@@ -2,11 +2,16 @@ package qa.guru.tests;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import qa.guru.models.pojo.CreateUserBodyModel;
-import qa.guru.models.pojo.CreateUserResponseModel;
+import qa.guru.models.lombok.CreateUserBodyLombokModel;
+import qa.guru.models.lombok.CreateUserResponseLombokModel;
+import qa.guru.models.lombok.UpdateUserBodyLombokModel;
+import qa.guru.models.lombok.UpdateUserResponseLombokModel;
+import qa.guru.models.pojo.CreateUserBodyPOJOModel;
+import qa.guru.models.pojo.CreateUserResponsePOJOModel;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -17,47 +22,55 @@ public class SeveralTestsForReqresAPI extends BaseTest {
     @Test
     @DisplayName("Создания нового юзера методом /api/users с POJO моделью и проверка параметров ответа созданного юзера")
     void creatingUserWithPOJO() {
-        CreateUserBodyModel createUserBodyModel = new CreateUserBodyModel();
-        createUserBodyModel.setName(dataForTheTest.userName);
-        createUserBodyModel.setJob(dataForTheTest.userJob);
+        CreateUserBodyPOJOModel createUserBodyPOJOModel = new CreateUserBodyPOJOModel();
+        createUserBodyPOJOModel.setName(dataForTheTest.userName);
+        createUserBodyPOJOModel.setJob(dataForTheTest.userJob);
 
-        CreateUserResponseModel createUserResponseModel = given().
+        CreateUserResponsePOJOModel createUserResponsePOJOModel = given().
                 contentType(JSON)
-                .body(createUserBodyModel)
+                .body(createUserBodyPOJOModel)
                 .when()
                 .post("/api/users")
                 .then()
                 .statusCode(201)
-                .extract().as(CreateUserResponseModel.class);
+                .extract().as(CreateUserResponsePOJOModel.class);
 
-        assertEquals(createUserResponseModel.getName(), dataForTheTest.userName);
-        assertEquals(createUserResponseModel.getJob(), dataForTheTest.userJob);
-        assertEquals(createUserResponseModel.getId(), notNullValue());
-        assertEquals(createUserResponseModel.getCreatedAt(), greaterThan(dataForTheTest.timeBeforeStartTest));
+        assertEquals(createUserResponsePOJOModel.getName(), dataForTheTest.userName);
+        assertEquals(createUserResponsePOJOModel.getJob(), dataForTheTest.userJob);
+        assertEquals(createUserResponsePOJOModel.getId(), notNullValue());
+        assertEquals(createUserResponsePOJOModel.getCreatedAt(), greaterThan(dataForTheTest.timeBeforeStartTest));
     }
 
     @Test
-    @DisplayName("Создаёт юзера, затем обновляет информацию по созданному юзеру методом /api/users/{id юзера}")
+    @DisplayName("Создаёт юзера, затем обновляет информацию по созданному юзеру методом /api/users/{id юзера} с Lombok моделью")
     void updatingUserInfoWithLombok() {
-        userId = Integer.parseInt(given().
+        CreateUserBodyLombokModel createUserBodyLombokModel = new CreateUserBodyLombokModel();
+        createUserBodyLombokModel.setName(dataForTheTest.userName);
+        createUserBodyLombokModel.setJob(dataForTheTest.userJob);
+        UpdateUserBodyLombokModel updateUserBodyLombokModel = new UpdateUserBodyLombokModel();
+        updateUserBodyLombokModel.setUpdateName(dataForTheTest.userNameToUpdate);
+        updateUserBodyLombokModel.setUpdateJob(dataForTheTest.userJobToUpdate);
+
+        CreateUserResponseLombokModel createUserResponseLombokModel = given().
                 contentType(JSON)
-                .body(dataForTheTest.jsonBodyToCreate.toString())
+                .body(createUserBodyLombokModel)
                 .when()
                 .post("/api/users")
                 .then()
-                .extract()
-                .path("id"));
+                .extract().as(CreateUserResponseLombokModel.class);
 
-        given().
+        UpdateUserResponseLombokModel updateUserResponseLombokModel = given().
                 contentType(JSON)
-                .body(dataForTheTest.jsonBodyToUpdate.toString())
+                .body(updateUserBodyLombokModel)
                 .when()
-                .put("/api/users/" + userId)
+                .put("/api/users/" + createUserResponseLombokModel.getId())
                 .then()
                 .statusCode(200)
-                .body("name", equalTo(dataForTheTest.userNameToUpdate)
-                        , "job", equalTo(dataForTheTest.userJobToUpdate)
-                        , "updatedAt", greaterThan(dataForTheTest.timeBeforeStartTest));
+                .extract().as(UpdateUserResponseLombokModel.class);
+
+        assertThat(updateUserResponseLombokModel.getUpdateName()).isEqualTo(dataForTheTest.userNameToUpdate);
+        assertThat(updateUserResponseLombokModel.getUpdateJob()).isEqualTo(dataForTheTest.userJobToUpdate);
+        assertThat(updateUserResponseLombokModel.getUpdateCreatedAt()).isEqualTo(dataForTheTest.timeBeforeStartTest);
     }
 
     @Test

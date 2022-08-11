@@ -1,6 +1,6 @@
 package qa.guru.models.pojo;
 
-public class CreateUserBodyModel {
+public class CreateUserBodyPOJOModel {
     String name,
             job;
 

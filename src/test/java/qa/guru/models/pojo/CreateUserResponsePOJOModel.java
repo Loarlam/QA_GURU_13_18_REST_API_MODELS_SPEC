@@ -1,6 +1,6 @@
 package qa.guru.models.pojo;
 
-public class CreateUserResponseModel {
+public class CreateUserResponsePOJOModel {
     String name,
             job,
             id,
