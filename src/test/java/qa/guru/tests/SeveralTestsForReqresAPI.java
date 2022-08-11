@@ -12,9 +12,12 @@ import qa.guru.models.pojo.CreateUserResponsePOJOModel;
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static qa.guru.specs.CreateUserWithSpec.requestSpecificationCreate;
+import static qa.guru.specs.CreateUserWithSpec.responseSpecificationCreate;
+import static qa.guru.specs.DeleteUserWithSpec.requestSpecificationDelete;
+import static qa.guru.specs.DeleteUserWithSpec.responseSpecificationDelete;
 
 
 public class SeveralTestsForReqresAPI extends BaseTest {
@@ -59,6 +62,7 @@ public class SeveralTestsForReqresAPI extends BaseTest {
                 .when()
                 .post("/api/users")
                 .then()
+                .statusCode(201)
                 .extract().as(CreateUserResponseLombokModel.class);
 
         UpdateUserResponseLombokModel updateUserResponseLombokModel = given().
@@ -76,51 +80,28 @@ public class SeveralTestsForReqresAPI extends BaseTest {
     }
 
 
-    /*@Test
+    @Test
     @DisplayName("Создаём юзера, затем удаленяем информацию по юзеру /api/users/{id юзера}")
-    void deletingUser() {
-        userId = Integer.parseInt(given().
-                contentType(JSON)
-                .body(dataForTheTest.jsonBodyToCreate.toString())
+    void deletingUserWithSpec() {
+        CreateUserBodyLombokModel createUserBodyLombokModel = new CreateUserBodyLombokModel();
+        createUserBodyLombokModel.setName(dataForTheTest.userName);
+        createUserBodyLombokModel.setJob(dataForTheTest.userJob);
+
+        CreateUserResponseLombokModel createUserResponseLombokModel = given().
+                spec(requestSpecificationCreate)
+                .body(createUserBodyLombokModel)
                 .when()
-                .post("/api/users")
+                .post()
                 .then()
-                .extract()
-                .path("id"));
+                .spec(responseSpecificationCreate)
+                .extract().as(CreateUserResponseLombokModel.class);
 
         given().
                 contentType(JSON)
+                .spec(requestSpecificationDelete)
                 .when()
                 .delete("/api/users/" + userId)
                 .then()
-                .statusCode(204);
+                .spec(responseSpecificationDelete);
     }
-
-    @Test
-    @DisplayName("Получает информацию по одном пользователю /api/users/{id юзера}")
-    void gettingUser() {
-        given().
-                contentType(JSON)
-                .when()
-                .get("/api/users/" + dataForTheTest.randomUserId)
-                .then()
-                .statusCode(200)
-                .body("data.id", equalTo(dataForTheTest.randomUserId)
-                        , "data.email", containsString("@reqres.in")
-                        , "data.first_name", notNullValue()
-                        , "data.avatar", containsString(dataForTheTest.randomUserId + "-image.jpg"));
-    }
-
-    @Test
-    @DisplayName("Неудачная попытка логирования в методе api/login")
-    void loggingUser() {
-        given().
-                contentType(JSON)
-                .body(dataForTheTest.jsonBodyUnsuccessfullLogin.toString())
-                .when()
-                .post("/api/login")
-                .then()
-                .statusCode(400)
-                .body("error", equalTo("Missing password"));
-    }*/
 }
