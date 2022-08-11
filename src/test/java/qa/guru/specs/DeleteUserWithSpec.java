@@ -10,6 +10,7 @@ import static io.restassured.RestAssured.with;
 
 public class DeleteUserWithSpec {
     public static RequestSpecification requestSpecificationDelete = with()
+            .basePath("/api/users/")
             .log().all()
             .contentType(ContentType.JSON);
 

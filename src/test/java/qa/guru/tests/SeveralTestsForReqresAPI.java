@@ -33,9 +33,11 @@ public class SeveralTestsForReqresAPI extends BaseTest {
         CreateUserResponsePOJOModel createUserResponsePOJOModel = given().
                 contentType(JSON)
                 .body(createUserBodyPOJOModel)
+                .log().all()
                 .when()
                 .post("/api/users")
                 .then()
+                .log().all()
                 .statusCode(201)
                 .extract().as(CreateUserResponsePOJOModel.class);
 
@@ -59,18 +61,22 @@ public class SeveralTestsForReqresAPI extends BaseTest {
         CreateUserResponseLombokModel createUserResponseLombokModel = given().
                 contentType(JSON)
                 .body(createUserBodyLombokModel)
+                .log().all()
                 .when()
                 .post("/api/users")
                 .then()
+                .log().all()
                 .statusCode(201)
                 .extract().as(CreateUserResponseLombokModel.class);
 
         UpdateUserResponseLombokModel updateUserResponseLombokModel = given().
                 contentType(JSON)
                 .body(updateUserBodyLombokModel)
+                .log().all()
                 .when()
                 .put("/api/users/" + createUserResponseLombokModel.getId())
                 .then()
+                .log().all()
                 .statusCode(200)
                 .extract().as(UpdateUserResponseLombokModel.class);
 
@@ -100,7 +106,7 @@ public class SeveralTestsForReqresAPI extends BaseTest {
                 contentType(JSON)
                 .spec(requestSpecificationDelete)
                 .when()
-                .delete("/api/users/" + userId)
+                .delete("/" + userId)
                 .then()
                 .spec(responseSpecificationDelete);
     }
