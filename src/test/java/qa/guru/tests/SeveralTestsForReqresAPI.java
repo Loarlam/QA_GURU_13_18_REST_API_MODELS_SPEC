@@ -2,33 +2,43 @@ package qa.guru.tests;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import qa.guru.models.pojo.CreateUserBodyModel;
+import qa.guru.models.pojo.CreateUserResponseModel;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 public class SeveralTestsForReqresAPI extends BaseTest {
     int userId;
 
     @Test
-    @DisplayName("Проверка создания нового юзера методом /api/users и параметров ответа созданного юзера")
-    void creatingUser() {
-        given().
+    @DisplayName("Создания нового юзера методом /api/users с POJO моделью и проверка параметров ответа созданного юзера")
+    void creatingUserWithPOJO() {
+        CreateUserBodyModel createUserBodyModel = new CreateUserBodyModel();
+        createUserBodyModel.setName(dataForTheTest.userName);
+        createUserBodyModel.setJob(dataForTheTest.userJob);
+
+        CreateUserResponseModel createUserResponseModel = given().
                 contentType(JSON)
-                .body(dataForTheTest.jsonBodyToCreate.toString())
+                .body(createUserBodyModel)
                 .when()
                 .post("/api/users")
                 .then()
                 .statusCode(201)
-                .body("name", equalTo(dataForTheTest.userName)
-                        , "job", equalTo(dataForTheTest.userJob)
-                        , "id", notNullValue()
-                        , "createdAt", greaterThan(dataForTheTest.timeBeforeStartTest));
+                .extract().as(CreateUserResponseModel.class);
+
+        assertEquals(createUserResponseModel.getName(), dataForTheTest.userName);
+        assertEquals(createUserResponseModel.getJob(), dataForTheTest.userJob);
+        assertEquals(createUserResponseModel.getId(), notNullValue());
+        assertEquals(createUserResponseModel.getCreatedAt(), greaterThan(dataForTheTest.timeBeforeStartTest));
     }
 
     @Test
     @DisplayName("Создаёт юзера, затем обновляет информацию по созданному юзеру методом /api/users/{id юзера}")
-    void updatingUserInfo() {
+    void updatingUserInfoWithLombok() {
         userId = Integer.parseInt(given().
                 contentType(JSON)
                 .body(dataForTheTest.jsonBodyToCreate.toString())
